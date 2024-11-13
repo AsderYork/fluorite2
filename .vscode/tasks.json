@@ -1,0 +1,38 @@
+{
+    "tasks": [
+        {
+            "label": "cmakeConfig",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "${workspaceFolder}/Build",
+                "-S",
+                "${workspaceFolder}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "cmakeBuild",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": ["cmakeConfig"]
+        }
+    ],
+    "version": "2.0.0"
+}
