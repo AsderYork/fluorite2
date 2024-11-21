@@ -1,10 +1,10 @@
 #include <iostream>
-#include <Ogre.h>
 #include <stdexcept>
 #include <string>
 
-#include <systemServices/SDL2Controller/SDL2Controller.hpp>
-#include <systemServices/GameloopController/GameloopController.hpp>
+#include <SystemServices/SDL2Controller/SDL2Controller.hpp>
+#include <SystemServices/GameloopController/GameloopController.hpp>
+#include <SystemServices/Ogre3d/Ogre3d.hpp>
 
 
 int main(int argc, char ** args) {
@@ -17,6 +17,13 @@ int main(int argc, char ** args) {
 	auto sdl2Controller = fluorite::SDL2Controller();
 	gameloopController.registerEvent(fluorite::GameloopController::PRE_INIT, [&](fluorite::GameloopController*, float){return sdl2Controller.startSDLWindow();});
 	gameloopController.registerEvent(fluorite::GameloopController::PRE_FRAME, [&](fluorite::GameloopController*, float){return sdl2Controller.processInput();});
+
+
+	auto ogre3d = fluorite::Ogre3d();
+	gameloopController.registerEvent(fluorite::GameloopController::INIT, [&](fluorite::GameloopController*, float){return ogre3d.initOgre(&sdl2Controller);});
+	gameloopController.registerEvent(fluorite::GameloopController::FRAME, [&](fluorite::GameloopController* game, float delta){ogre3d.ogreFrame(delta); return true;});
+	gameloopController.registerEvent(fluorite::GameloopController::SHUTDOWN, [&](fluorite::GameloopController*, float){ogre3d.ogreShutdown(); return true;});
+
 
 	try
 	{

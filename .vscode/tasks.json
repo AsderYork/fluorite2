@@ -1,5 +1,20 @@
 {
     "tasks": [
+
+        {
+            "label": "lang",
+            "command": "chcp",
+            "args": [
+                "1252",
+            ],
+            "options": {
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+
         {
             "label": "cmakeConfig",
             "command": "cmake",
@@ -15,7 +30,8 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "dependsOn": ["lang"]
         },
         {
             "label": "cmakeBuild",

@@ -12,7 +12,7 @@ namespace fluorite {
     bool SDL2Controller::startSDLWindow()
     {
         if( SDL_Init( SDL_INIT_EVERYTHING ) != 0 ) { return false; }
-        SDL_Window* window = SDL_CreateWindow("Fluorite is the best gem!",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN);
+        SDL_Window* window = SDL_CreateWindow("Fluorite is the best gem2!",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN);
         if (window == NULL) { return false; }
 
 
