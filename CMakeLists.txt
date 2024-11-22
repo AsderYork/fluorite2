@@ -15,8 +15,8 @@ find_package(SDL2 REQUIRED)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(app ${SOURCES})
+set_property(TARGET app PROPERTY CXX_STANDARD 20)
 
-message(${SOURCES})
 
 target_include_directories(app PUBLIC ${CMAKE_SOURCE_DIR}/src)
 

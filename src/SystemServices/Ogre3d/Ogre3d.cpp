@@ -1,7 +1,7 @@
 #include <SystemServices/Ogre3d/Ogre3d.hpp>
 #include <SystemServices/Ogre3d/Ogre3dCameraControl/Ogre3dCameraControl.hpp>
 
-//#include "../terrain/terrain.h"
+#include <Terrain/Terrain.hpp>
 #include <iostream>
 
 namespace fluorite
@@ -9,10 +9,6 @@ namespace fluorite
 
     std::vector<Ogre::SceneNode*> thingsToRotate;
     Ogre3dCameraControll* camcontrol;
-    //auto blockProvider = TerrainBlocksProvidePersistant();
-    //auto dataBlockStorage = TerrainDataBlockStorage();
-    int blocCounter = 0;
-
 
     void createColourCube() {
         /// Create the mesh via the MeshManager
@@ -138,7 +134,6 @@ namespace fluorite
         msh->load();
     }
 
-
     void createMeshFromVertices(std::string name, std::vector<Ogre::Vector3> vertices, std::vector<int> indices, Ogre::Vector3 size = {1,1,1}) {
         /// Create the mesh via the MeshManager
         Ogre::MeshPtr msh = Ogre::MeshManager::getSingleton().createManual(name, "General");
@@ -197,7 +192,6 @@ namespace fluorite
         msh->load();
     }
 
-
     void createTestMaterial() {
         Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create("Test/ColourTest", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         material->getTechnique(0)->getPass(0)->setPolygonMode(Ogre::PolygonMode::PM_WIREFRAME);
@@ -253,69 +247,14 @@ namespace fluorite
         return thisSceneNode;
     }
 
-/*
-    class TerrainChunkRenderableDebug : public TerrainChunkRenderableInterface {
 
-        private:
-            std::vector<std::pair<Ogre::SceneNode*, bool>> m_sceneNodes;
-            Ogre::ColourValue LodColor(int lod) {
-                auto color = Ogre::ColourValue();
-                color.setHSB(fmod(lod * 0.13f, 1.0f), 1.0f, 1.0f);
-                return color;
-            }
-
-
-        public:
-            std::string getName() {return "Debug-pancake";}
-            void init(TerrainChunk* chunk) {
-                if(chunk->getPos().y == 0) {
-                    float sz = Gem::TerrainChunk::getLevelChunkSize(chunk->getLoD());
-                    auto pos = Ogre::Vector3(chunk->getPos().x, chunk->getPos().y, chunk->getPos().z);
-                    auto blockshift = Ogre::Vector3(sz / 2, 0, sz / 2);
-                    m_sceneNodes.emplace_back(putTestCube("", pos + blockshift, blockshift + Ogre::Vector3(0,1,0), LodColor(chunk->getLoD())), false);
-
-                    m_sceneNodes.emplace_back(putTestCube("", pos + blockshift, {1,1,1}, LodColor(chunk->getNeighbouringLods()[0])), false);
-                }
-
-
-                //if(chunk->getPos().x == 0 && chunk->getPos().y == 0 && chunk->getPos().z == 0 && chunk->getLoD() == 1) {
-                    auto polygonizator = TransvoxelPolygonizator();
-                    auto block = dataBlockStorage.requestBlock(chunk->getPos());
-                    polygonizator.PolygonizeSingleBlock(&(*block), TerrainChunk::getLevelChunkSize(chunk->getLoD()) / TerrainChunk::getLevelChunkSize(1));
-
-                    auto chunkName = "Chunk" + chunk->getPos().to_string() + "[" + std::to_string(chunk->getLoD()) + "]";
-                    m_sceneNodes.emplace_back(putMesh(chunkName, OgreVecFromV3I(chunk->getPos()), polygonizator.getVerticesPositions(), polygonizator.getIndices(), Ogre::Vector3(TerrainChunk::getLevelChunkSize(chunk->getLoD()))), true);
-                //}
-
-
-            }
-            ~TerrainChunkRenderableDebug() {
-                
-                auto sceneMgr = Ogre::Root::getSingletonPtr()->getSceneManagers().begin()->second;
-                for(auto node : m_sceneNodes) {
-                    auto attachedObject = node.first->getAttachedObject(0);
-                    auto name = attachedObject->getName();
-                    node.first->detachObject(attachedObject);
-                    sceneMgr->destroyEntity(attachedObject);
-                    sceneMgr->destroySceneNode(node.first);
-
-                    if(node.second) {
-                        Ogre::MeshManager::getSingletonPtr()->remove(name, "General");
-                    }
-
-                }
-            }
-    };
-*/
-
-
-     bool Ogre3d::initOgre(SDL2Controller* sdl) {
+    bool Ogre3d::initOgre(SDL2Controller* sdl) {
 
         sdlController = sdl;
         auto root = new Ogre::Root("", "");
         auto glRender = new Ogre::GLRenderSystem();
         root->addRenderSystem(glRender);	
-        root->setRenderSystem(glRender);
+        root->setRenderSystem(glRender);	
 
         Ogre::NameValuePairList params; 
         params["externalWindowHandle"] = Ogre::StringConverter::toString(sdl->getWindowIdentifier()); 
@@ -337,26 +276,11 @@ namespace fluorite
 
         thingsToRotate.push_back(putTestCube("cc", Ogre::Vector3(-8, 0, 2)));
         thingsToRotate.push_back(putTestCube("cc2", Ogre::Vector3(-8, 0, -2)));
-
-        /*blockProvider.onChunkCreated([](TerrainChunk* chunk) {
-            chunk->addRenderable(std::make_unique<TerrainChunkRenderableDebug>());
-            chunk->initRenderables();
-        });*/
-        
-
-        
-	    //Gem::TerrainChunkFinder(&blockProvider).findBlocks(V3IFromOgreVec(Ogre::Vector3(0)), 100);
-        //blockProvider.clearUnusedBlocks();
        
         return true;
     }
 
     void Ogre3d::ogreFrame(float delta) {
-
-	    //Gem::TerrainChunkFinder(&blockProvider).findBlocks(V3IFromOgreVec(Ogre::Vector3(0)), 100);
-        //blockProvider.clearUnusedBlocks();
-        //dataBlockStorage.removeOldBlocks();
-
         for(auto obj : thingsToRotate) {
             obj->yaw(Ogre::Radian(delta * 0.5f));
         }
@@ -367,7 +291,6 @@ namespace fluorite
     }    
 
     void Ogre3d::ogreShutdown() {
-        //blockProvider.clearStorage();
     }
 
 

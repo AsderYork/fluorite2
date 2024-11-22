@@ -41,13 +41,18 @@ namespace fluorite {
 
         auto moveDir = Ogre::Vector3(0);
         moveDir.x = controller->isKeyPressed(SDLK_d) - controller->isKeyPressed(SDLK_a);
-        moveDir.y = controller->isKeyPressed(SDLK_SPACE) - controller->isKeyPressed(SDLK_LSHIFT);
         moveDir.z = controller->isKeyPressed(SDLK_s) - controller->isKeyPressed(SDLK_w);
         moveDir.normalise();
         moveDir = moveDir * delta * speed;
-        
         moveDir = camera->getParentSceneNode()->getOrientation() * moveDir;
-        currPos = currPos + moveDir;
+
+        
+        auto flyDir = Ogre::Vector3(0);
+        flyDir.y = controller->isKeyPressed(SDLK_SPACE) - controller->isKeyPressed(SDLK_LSHIFT);
+        flyDir.normalise();
+        flyDir = flyDir * delta * speed;
+        
+        currPos = currPos + moveDir + flyDir;
 
         camera->getParentNode()->setPosition(currPos);
 
