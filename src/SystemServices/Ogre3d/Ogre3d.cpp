@@ -7,7 +7,7 @@
 namespace fluorite
 {
 
-    std::vector<Ogre::SceneNode*> thingsToRotate;
+    //std::vector<Ogre::SceneNode*> thingsToRotate;
     Ogre3dCameraControll* camcontrol;
 
 
@@ -234,7 +234,7 @@ namespace fluorite
         }
 
     public:
-        static Ogre::SceneNode* putTestCube(Ogre::String name, Ogre::Vector3 pos, Ogre::Vector3 size = {1,1,1}, Ogre::ColourValue color = Ogre::ColourValue::ZERO) {
+        static Ogre::SceneNode* putTestCube(Ogre::Vector3 pos, Ogre::Vector3 size = {1,1,1}, Ogre::ColourValue color = Ogre::ColourValue::ZERO) {
 
             if(!isInited) {
                 createColourCube();
@@ -244,7 +244,8 @@ namespace fluorite
 
             auto mainSceneManager = Ogre::Root::getSingletonPtr()->getSceneManagers().begin()->second;
 
-            auto thisEntity = name.size() > 0 ? mainSceneManager->createEntity(name, "ColourCube") : mainSceneManager->createEntity("ColourCube");
+
+            auto thisEntity = mainSceneManager->createEntity("ColourCube");
 
             if(color == Ogre::ColourValue::ZERO) {
                 thisEntity->setMaterialName("Test/ColourTest");
@@ -263,7 +264,6 @@ namespace fluorite
         }    
     };
     bool DebugMeshesGenerator::isInited = false;
-
     
 
     bool Ogre3d::initOgre(SDL2Controller* sdl) {
@@ -281,33 +281,27 @@ namespace fluorite
 
         Ogre::SceneManager *sceneMgr = root->createSceneManager();
         
-
         camcontrol = new Ogre3dCameraControll(sceneMgr, sdlController);       
-        
 
         Ogre::Viewport *vp = mWindow->addViewport(camcontrol->getCamera());
 
-
-        sceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
-
-        thingsToRotate.push_back(DebugMeshesGenerator::putTestCube("cc", Ogre::Vector3(-8, 0, 2)));
-        thingsToRotate.push_back(DebugMeshesGenerator::putTestCube("cc2", Ogre::Vector3(-8, 0, -2)));
-       
+        sceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));       
         return true;
     }
 
     void Ogre3d::ogreFrame(float delta) {
-        for(auto obj : thingsToRotate) {
-            obj->yaw(Ogre::Radian(delta * 0.5f));
-        }
-
         camcontrol->frame(delta);
-
         Ogre::Root::getSingletonPtr()->renderOneFrame(delta);
     }    
 
     void Ogre3d::ogreShutdown() {
     }
+
+    GraphicsObject Ogre3d::testCube(float x, float y, float z) {
+        auto sceneNode = DebugMeshesGenerator::putTestCube(Ogre::Vector3(x, y, z));
+        return GraphicsObject(sceneNode);
+    };
+
 
 
 }

@@ -8,11 +8,7 @@
 
 
 int main(int argc, char ** args) {
-
-
-	
 	auto gameloopController = fluorite::GameloopController();
-
 
 	auto sdl2Controller = fluorite::SDL2Controller();
 	gameloopController.registerEvent(fluorite::GameloopController::PRE_INIT, [&](fluorite::GameloopController*, float){return sdl2Controller.startSDLWindow();});
@@ -23,6 +19,15 @@ int main(int argc, char ** args) {
 	gameloopController.registerEvent(fluorite::GameloopController::INIT, [&](fluorite::GameloopController*, float){return ogre3d.initOgre(&sdl2Controller);});
 	gameloopController.registerEvent(fluorite::GameloopController::FRAME, [&](fluorite::GameloopController* game, float delta){ogre3d.ogreFrame(delta); return true;});
 	gameloopController.registerEvent(fluorite::GameloopController::SHUTDOWN, [&](fluorite::GameloopController*, float){ogre3d.ogreShutdown(); return true;});
+
+
+	//General init. Mostly for testing purposes
+	gameloopController.registerEvent(fluorite::GameloopController::INIT, [&](fluorite::GameloopController*, float){
+		ogre3d.testCube(-8, 0, 2);
+		ogre3d.testCube(-8, 0, -2);
+		return true;
+	});
+
 
 
 	try
