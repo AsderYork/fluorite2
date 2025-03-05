@@ -33,7 +33,7 @@ namespace fluorite
         void ogreFrame(float delta);
         void ogreShutdown();
 
-        GraphicsObject testCube(float x, float y, float z);
+        GraphicsObject testCube(float x, float y, float z, float size, Ogre::ColourValue color = Ogre::ColourValue::White);
 
     };
     

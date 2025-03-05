@@ -6,8 +6,17 @@
 #include <SystemServices/GameloopController/GameloopController.hpp>
 #include <SystemServices/Ogre3d/Ogre3d.hpp>
 
+#include <Terrain2/Terrain2.hpp>
+
 
 int main(int argc, char ** args) {
+
+	auto terrainMap = new fluorite::TerrainMap();
+
+	terrainMap->loadForAPoint({0,0,0}, 512);
+
+	auto terminalChunks = terrainMap->getTerminalChunks();
+
 	auto gameloopController = fluorite::GameloopController();
 
 	auto sdl2Controller = fluorite::SDL2Controller();
@@ -23,8 +32,17 @@ int main(int argc, char ** args) {
 
 	//General init. Mostly for testing purposes
 	gameloopController.registerEvent(fluorite::GameloopController::INIT, [&](fluorite::GameloopController*, float){
-		ogre3d.testCube(-8, 0, 2);
-		ogre3d.testCube(-8, 0, -2);
+
+		/**
+		 * Test cubes actualy have size 2 and they begin at their geometric center, not at minimal cords
+		 */
+		for(auto grapgicChunkPtr : terminalChunks) {
+
+			auto colorValue = Ogre::ColourValue();
+			colorValue.setHSB(fmod(grapgicChunkPtr->lod * 0.17, 1), 0.8f, 0.8f);
+			ogre3d.testCube((float)grapgicChunkPtr->pos.x / 100.0f, (float)grapgicChunkPtr->pos.y / 100.0f, (float)grapgicChunkPtr->pos.z / 100.0f, (float)grapgicChunkPtr->size/ 100.0f, colorValue);
+		}
+
 		return true;
 	});
 
