@@ -48,6 +48,17 @@ int main(int argc, char ** args) {
 
 
 
+	
+	gameloopController.registerEvent(fluorite::GameloopController::POST_FRAME, [&](fluorite::GameloopController*, float delta){
+		char buffer[64];
+		snprintf(buffer, sizeof(buffer), "%.1f", 1.0f/delta);
+
+		sdl2Controller.setWindowCaption("Fluorite FPS:" + std::string(buffer, 64));
+		return true;
+	});
+
+
+
 	try
 	{
 		gameloopController.start();

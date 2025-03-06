@@ -34,8 +34,10 @@ namespace fluorite {
 
     void Ogre3dCameraControll::frame(float delta) {
 
-        camera->getParentSceneNode()->yaw(Ogre::Radian(controller->getMouseData().xrel * -sensitivity), Ogre::Node::TransformSpace::TS_WORLD);
-        camera->getParentSceneNode()->pitch(Ogre::Radian(controller->getMouseData().yrel * -sensitivity));
+        auto tq = controller->getMouseData().xrel * -sensitivity * delta;
+
+        camera->getParentSceneNode()->yaw(Ogre::Radian(controller->getMouseData().xrel * -sensitivity * delta), Ogre::Node::TransformSpace::TS_WORLD);
+        camera->getParentSceneNode()->pitch(Ogre::Radian(controller->getMouseData().yrel * -sensitivity * delta));
 
         auto currPos = camera->getParentNode()->getPosition();
 

@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <map>
+#include <string>
 
 namespace fluorite {
 
@@ -25,8 +26,11 @@ namespace fluorite {
         size_t windowIdentifier;
         std::map<SDL_Keycode, bool> keyboardState;
         Mouse mouse;
+        SDL_Window* window;
 
     public:
+
+        void setWindowCaption(std::string caption);
 
 
         SDL2Controller();

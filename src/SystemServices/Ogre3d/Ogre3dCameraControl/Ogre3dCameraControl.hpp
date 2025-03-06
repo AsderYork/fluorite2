@@ -11,7 +11,7 @@ namespace fluorite {
             Ogre::Camera* camera;
             SDL2Controller* controller;
             float speed = 4;
-            float sensitivity = 0.001f;
+            float sensitivity = 0.5f;
 
         public: 
 

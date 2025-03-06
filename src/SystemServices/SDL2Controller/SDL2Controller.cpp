@@ -12,7 +12,7 @@ namespace fluorite {
     bool SDL2Controller::startSDLWindow()
     {
         if( SDL_Init( SDL_INIT_EVERYTHING ) != 0 ) { return false; }
-        SDL_Window* window = SDL_CreateWindow("Fluorite is the best gem2!",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN);
+        window = SDL_CreateWindow("Fluorite is the best gem2!",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN);
         if (window == NULL) { return false; }
 
 
@@ -52,6 +52,10 @@ namespace fluorite {
     }
 
     SDL2Controller::SDL2Controller() {
+    }
+
+    void SDL2Controller::setWindowCaption(std::string caption) {
+        SDL_SetWindowTitle(window, caption.c_str());
     }
 
     bool SDL2Controller::isKeyPressed(SDL_Keycode key) {
