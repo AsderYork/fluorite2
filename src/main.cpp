@@ -11,11 +11,17 @@
 
 int main(int argc, char ** args) {
 
-	auto terrainMap = new fluorite::TerrainMap();
+	auto terrainMap = fluorite::TerrainMap();
 
-	terrainMap->loadForAPoint({0,0,0}, 512);
+	terrainMap.loadForAPoint({0,0,0}, 512);
+	terrainMap.createChunksForAViewpoint({0,0,0}, 512);
+	terrainMap.resetInUseFlags();
 
-	auto terminalChunks = terrainMap->getTerminalChunks();
+	terrainMap.createChunksForAViewpoint({0,0,0}, 512);
+
+	terrainMap.clearUnusedChunks();
+
+	auto terminalChunks = terrainMap.getTerminalChunks();
 
 	auto gameloopController = fluorite::GameloopController();
 

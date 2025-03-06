@@ -19,6 +19,11 @@ namespace fluorite
             return IntVector(x/v + signx, y/v + signy, z/v + signz);
         }
 
+        bool operator==(const IntVector& other) const
+        {
+            return x == other.x && y == other.y && z == other.z;
+        }
+
 
         IntVector mul(int v) {
             return IntVector(x*v, y*v, z*v);
