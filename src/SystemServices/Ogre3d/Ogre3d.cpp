@@ -1,15 +1,10 @@
 #include <SystemServices/Ogre3d/Ogre3d.hpp>
-#include <SystemServices/Ogre3d/Ogre3dCameraControl/Ogre3dCameraControl.hpp>
 
 #include <Terrain/Terrain.hpp>
 #include <iostream>
 
 namespace fluorite
 {
-
-    //std::vector<Ogre::SceneNode*> thingsToRotate;
-    Ogre3dCameraControll* camcontrol;
-
 
     /**
      * Simple class for some test cubes
@@ -405,20 +400,25 @@ namespace fluorite
 
         Ogre::SceneManager *sceneMgr = root->createSceneManager();
         
-        camcontrol = new Ogre3dCameraControll(sceneMgr, sdlController);       
+        mainCamera = std::make_unique<Ogre3dCameraControll>(sceneMgr, sdlController);      
+        
 
-        Ogre::Viewport *vp = mWindow->addViewport(camcontrol->getCamera());
+        Ogre::Viewport *vp = mWindow->addViewport(mainCamera->getCamera());
 
         sceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));       
         return true;
     }
 
     void Ogre3d::ogreFrame(float delta) {
-        camcontrol->frame(delta);
+        mainCamera->frame(delta);
         Ogre::Root::getSingletonPtr()->renderOneFrame(delta);
     }    
 
     void Ogre3d::ogreShutdown() {
+    }
+
+    Ogre3dCameraControll* Ogre3d::getCamera() const{
+        return mainCamera.get();
     }
 
     GraphicsObject Ogre3d::testCube(float x, float y, float z, float size, Ogre::ColourValue color) {

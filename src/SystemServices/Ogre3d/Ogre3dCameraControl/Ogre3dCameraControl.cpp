@@ -31,6 +31,10 @@ namespace fluorite {
         return camera;
     }
 
+    Ogre::Vector3 Ogre3dCameraControll::getPos() const {
+        return camera->getRealPosition();
+    }
+
 
     void Ogre3dCameraControll::frame(float delta) {
 

@@ -5,47 +5,28 @@
 
 #include <misc/intVector.hpp>
 
-#define TERRAIN_CHUNKSIZE 16
-#define MAX_LOD 6
-
-
 
 namespace fluorite 
 {   
     class TerrainMap
     {
         public:
+            class Chunk;
+
+            class SubChunkData {};
+            
             /**
              * Subchunks for LoD
              */
             class SubChunk {
-                
-                public:
-                    IntVector pos;
-                    int size;
-                    int lod;
-                    bool inUse;
-                    SubChunk(IntVector _pos, int _lod, int _size) : pos(_pos), lod(_lod), size(_size) {}
 
-                    bool operator==(const SubChunk& other) const
-                    {
-                        return pos == other.pos && lod == other.lod;
-                    }
-
-                    void setInUse(bool _inUse = true) {
-                        inUse = _inUse;
-                    }
-
-                    bool isInUse() {
-                        return inUse;
-                    }
-
-
+                private:
+                    friend class Chunk;
 
                     IntVector center() {
                         return pos.add(size/2);
                     }
-        
+    
                     /**
                      * Checks if a chunk is too close to a viewpoint. If it is so, a chunk will be subdivided into 8 subchunks
                      * They too will be checked and potentially subdivided
@@ -88,7 +69,70 @@ namespace fluorite
         
                     }
         
+                    void appendToGenerateSubchunks(std::vector<SubChunk> &subchunks, IntVector viewPoint, int chunkMinimumSize = 16) {
+    
+                        if(size <= chunkMinimumSize) {
+                            return;
+                        }
+        
+        
+                        auto chunkCenter = center();
+                        auto len = chunkCenter.sub(viewPoint).length();
+        
+                        /**
+                         * Let's assume that minimal chunk is 16x16x16. And on every level there must be about 2 chunks
+                         * Then 16*2 for the first level, 32*2 for the second and size*2 for every next one
+                         * luckly we do keep size with us
+                         */
+        
+                        if(len < size*2) {
+                            int subChunkSize = size/2;
+                            for(int x = 0; x < 2; x++) {
+                                for(int y = 0; y < 2; y++) {
+                                    for(int z = 0; z < 2; z++) {
+                                        auto subchunk = SubChunk(pos.add(IntVector(x,y,z).mul(subChunkSize)), lod+1, subChunkSize);
+                                        int lastSubchunksSize = subchunks.size();
+                                        subchunk.appendToGenerateSubchunks(subchunks, viewPoint, chunkMinimumSize);
+                                        if(subchunks.size() == lastSubchunksSize) {
+                                            subchunks.push_back(subchunk);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+        
 
+                
+                public:
+                    IntVector pos;
+                    int size;
+                    int lod;
+                    bool inUse;
+                    bool isInitialized = false;
+                    std::vector<std::shared_ptr<SubChunkData>> subchunkData;
+
+
+                    SubChunk(IntVector _pos, int _lod, int _size) : pos(_pos), lod(_lod), size(_size) {}
+
+                    bool operator==(const SubChunk& other) const
+                    {
+                        return pos == other.pos && lod == other.lod;
+                    }
+
+                    void setInUse(bool _inUse = true) {
+                        inUse = _inUse;
+                    }
+
+                    bool isInUse() const {
+                        return inUse;
+                    }
+
+                    void setInInitialized(bool initialized = true) {
+                        isInitialized = initialized;
+                    }
+                  
+                    
 
             };
 
@@ -138,6 +182,16 @@ namespace fluorite
 
                     }
 
+                    void appendToGenerateSubchunks(std::vector<SubChunk> &subchunks, IntVector viewpoint, int chunkMinimumSize = 16) {
+                        int initialSize = subchunks.size();
+                        auto mainSubchunk = SubChunk(pos, 1, size);
+                        mainSubchunk.appendToGenerateSubchunks(subchunks, viewpoint, chunkMinimumSize);
+                        if(subchunks.size() == initialSize) {
+                            subchunks.push_back(mainSubchunk);
+                        }
+
+                    }
+
                 
 
 
@@ -145,96 +199,17 @@ namespace fluorite
 
 
         private:
-            int datachunkSize = 256;
-            int minChunkSize = 16;
+            int datachunkSize;
+            int minChunkSize;
             std::vector<Chunk> chunks;
             std::vector<SubChunk> subChunks;
 
           
         public:
+
+            TerrainMap(int _datachunkSize = 256, int _minChunkSize = 16) : datachunkSize(_datachunkSize), minChunkSize(_minChunkSize)
+            {}
         
-            class GraphicalSubchunk {
-                std::vector<GraphicalSubchunk> subchunks;
-
-            public:
-            IntVector pos;
-            int size;
-            int lod;
-
-                GraphicalSubchunk(IntVector _pos, int _lod, int _size) : pos(_pos), lod(_lod), size(_size) {}
-
-                IntVector center() {
-                    return pos.add(size/2);
-                }
-
-
-                /**
-                 * Returns all terminal chunks. Meaning chunks that have no subchunks. The smallest ones
-                 */
-                std::vector<GraphicalSubchunk*> getTerminalChunks() {
-                    std::vector<GraphicalSubchunk*> result;
-                    if(subchunks.size() == 0) {
-                        result.emplace_back(this);
-                    } else {
-                        for(auto& subchunk : subchunks) {
-                            auto subchunkTerminals = subchunk.getTerminalChunks();
-                            result.insert(result.begin(), subchunkTerminals.begin(), subchunkTerminals.end()); 
-                        }
-                    }
-                    return result;
-                }
-
-
-
-                /**
-                 * Checks if a chunk is too close to a viewpoint. If it is so, a chunk will be subdivided into 8 subchunks
-                 * They too will be checked and potentially subdivided
-                 */
-                void subdivideIfNeeded(IntVector viewPoint) {
-
-                    //16 is minimum chunk size;
-                    if(size <= 16) {
-                        return;
-                    }
-
-
-                    auto chunkCenter = center();
-                    auto len = chunkCenter.sub(viewPoint).length();
-
-                    /**
-                     * Let's assume that minimal chunk is 16x16x16. And on every level there must be about 2 chunks
-                     * Then 16*2 for the first level, 32*2 for the second and size*2 for every next one
-                     * luckly we do keep size with us
-                     */
-
-                    if(len < size*2) {
-                        int subChunkSize = size/2;
-                        for(int x = 0; x < 2; x++) {
-                            for(int y = 0; y < 2; y++) {
-                                for(int z = 0; z < 2; z++) {
-                                    auto& subchunk = subchunks.emplace_back(GraphicalSubchunk(pos.add(IntVector(x,y,z).mul(subChunkSize)), lod+1, subChunkSize));
-                                    subchunk.subdivideIfNeeded(viewPoint);
-                                }
-                            }
-                        }
-                    }
-
-                }
-
-
-            };
-            
-            std::vector<GraphicalSubchunk> graphicsChunks;
-
-            std::vector<GraphicalSubchunk*> getTerminalChunks() {
-                std::vector<GraphicalSubchunk*> result;
-                for(auto& subchunk : graphicsChunks) {
-                    auto subchunkTerminals = subchunk.getTerminalChunks();
-                    result.insert(result.begin(), subchunkTerminals.begin(), subchunkTerminals.end()); 
-                }
-                return result;
-            }
-
             void resetInUseFlags() {
                 for(auto& chunk : chunks) {
                     chunk.setInUse(false);
@@ -250,15 +225,18 @@ namespace fluorite
                 auto mapBlockMin = pos.sub(1).sub(radius).smoothdiv(datachunkSize).mul(datachunkSize);
                 auto mapBlockMax = pos.add(1).add(radius).smoothdiv(datachunkSize).mul(datachunkSize);
 
+                int approxSize = (radius/minChunkSize);
+                approxSize = approxSize*approxSize;
+
                 std::vector<Chunk> chunksOfViewpoint;
                 std::vector<SubChunk> subchunksOfViewpoint;
+                subchunksOfViewpoint.reserve(approxSize);
 
                 for(int x = mapBlockMin.x; x <= mapBlockMax.x; x += datachunkSize) {
                     for(int y = mapBlockMin.y; y <= mapBlockMax.y; y += datachunkSize) {
                         for(int z = mapBlockMin.z; z <= mapBlockMax.z; z += datachunkSize) {
                             auto& chunk = chunksOfViewpoint.emplace_back(Chunk({x,y,z}, datachunkSize));
-                            auto subchunks = chunk.generateSubchunks(pos, minChunkSize);
-                            subchunksOfViewpoint.insert(subchunksOfViewpoint.begin(), subchunks.begin(), subchunks.end()); 
+                            chunk.appendToGenerateSubchunks(subchunksOfViewpoint, pos, minChunkSize);
 
                         }
                     }
@@ -284,7 +262,7 @@ namespace fluorite
                         subChunksToAdd.push_back(subChunk);
                     }
                 }
-                subChunks.insert(subChunks.begin(), subChunksToAdd.begin(), subChunksToAdd.end());              
+                subChunks.insert(subChunks.begin(), subChunksToAdd.begin(), subChunksToAdd.end());        
 
             }
 
@@ -293,31 +271,13 @@ namespace fluorite
                 std::erase_if(chunks, [](Chunk x) { return !x.isInUse(); } );
             }
 
-
-
-
-            void loadForAPoint(IntVector pos, int radius) {
-                /**
-                 * Chunks sizes are powers of two
-                 * Chunk's coordinates are it's minimal cords
-                 * Chunks are alligned to coordinates (Meaning p = size*a where a - integer) 
-                 * First let's find biggest chunks that would fit our FOV completely
-                 */
-
-                auto mapBlockMin = pos.sub(1).sub(radius).smoothdiv(datachunkSize).mul(datachunkSize);
-                auto mapBlockMax = pos.add(1).add(radius).smoothdiv(datachunkSize).mul(datachunkSize);
-
-                for(int x = mapBlockMin.x; x <= mapBlockMax.x; x += datachunkSize) {
-                    for(int y = mapBlockMin.y; y <= mapBlockMax.y; y += datachunkSize) {
-                        for(int z = mapBlockMin.z; z <= mapBlockMax.z; z += datachunkSize) {
-                            auto& graphicChunk = graphicsChunks.emplace_back(GraphicalSubchunk({x,y,z}, 1, datachunkSize));
-                            graphicChunk.subdivideIfNeeded(pos);
-
-                        }
+            void initializeSubchunks(std::function<void(SubChunk*)> initializator) {
+                for(auto& subchunk : subChunks) {
+                    if(!subchunk.isInitialized) {
+                        initializator(&subchunk);
+                        subchunk.setInInitialized();
                     }
                 }
-
-
             }
 
     };

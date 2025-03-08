@@ -3,6 +3,8 @@
 #include <Ogre.h>
 #include <RenderSystems/GL/OgreGLRenderSystem.h>
 #include <SystemServices/SDL2Controller/SDL2Controller.hpp>
+#include <SystemServices/Ogre3d/Ogre3dCameraControl/Ogre3dCameraControl.hpp>
+#include <memory>
 
 namespace fluorite
 {
@@ -17,6 +19,12 @@ namespace fluorite
 
         GraphicsObject(Ogre::SceneNode* _sceneNode) : sceneNode(_sceneNode) {}
         friend class Ogre3d;
+
+    public:
+
+        void destroy() {
+            sceneNode->destroyAllChildrenAndObjects();
+        }
     };
 
 
@@ -27,11 +35,14 @@ namespace fluorite
     {
     private: 
         SDL2Controller* sdlController;
+        std::unique_ptr<Ogre3dCameraControll> mainCamera;
     public:
 
         bool initOgre(SDL2Controller* sdl);
         void ogreFrame(float delta);
         void ogreShutdown();
+
+        Ogre3dCameraControll* getCamera() const;
 
         GraphicsObject testCube(float x, float y, float z, float size, Ogre::ColourValue color = Ogre::ColourValue::White);
 

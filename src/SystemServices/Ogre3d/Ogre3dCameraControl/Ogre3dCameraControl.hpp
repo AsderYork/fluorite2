@@ -20,6 +20,8 @@ namespace fluorite {
         Ogre3dCameraControll& setPos(Ogre::Vector3 pos);
         Ogre::Camera* getCamera();
 
+        Ogre::Vector3 getPos() const;
+
         
         Ogre3dCameraControll& lookAt(Ogre::Vector3 pos);
 
