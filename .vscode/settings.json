@@ -97,6 +97,20 @@
         "xutility": "cpp",
         "queue": "cpp",
         "coroutine": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp",
+        "codecvt": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "source_location": "cpp",
+        "rope": "cpp",
+        "slist": "cpp",
+        "stdfloat": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp",
+        "*.ipp": "cpp",
+        "execution": "cpp",
+        "filesystem": "cpp"
     }
 }

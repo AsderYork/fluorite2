@@ -4,7 +4,7 @@ namespace fluorite
 {
     struct IntVector {
         int x, y, z;
-        IntVector(int v) : x(v), y(v), z(v) {}
+        IntVector(int v = 0) : x(v), y(v), z(v) {}
         IntVector(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
 
         IntVector div(int v) const {
@@ -19,11 +19,7 @@ namespace fluorite
             return IntVector(x/v + signx, y/v + signy, z/v + signz);
         }
 
-        bool operator==(const IntVector& other) const
-        {
-            return x == other.x && y == other.y && z == other.z;
-        }
-
+        auto operator<=>(const IntVector&) const = default;
 
         IntVector mul(int v) const {
             return IntVector(x*v, y*v, z*v);
@@ -34,7 +30,7 @@ namespace fluorite
             return IntVector(x - v, y - v, z - v);
         }
 
-        IntVector sub(IntVector v) const {
+        IntVector sub(const IntVector v) const {
             return IntVector(x - v.x, y - v.y, z - v.z);
         }
 

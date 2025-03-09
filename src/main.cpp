@@ -80,7 +80,7 @@ int main(int argc, char ** args) {
 			if(subchunk->pos.y != 0) {return;}
 
 			auto colorValue = Ogre::ColourValue();
-			colorValue.setHSB(fmod(subchunk->lod * 0.17, 1), 0.8f, 0.8f);
+			colorValue.setHSB(fmod(subchunk->size * 0.17, 1), 0.8f, 0.8f);
 			auto graphicObject = ogre3d.testCube((float)subchunk->pos.x / 100.0f, (float)subchunk->pos.y / 100.0f, (float)subchunk->pos.z / 100.0f, (float)subchunk->size/ 100.0f, colorValue);
 			subchunk->subchunkData.push_back(std::make_shared<graphicSubchunkNode>(graphicObject));
 		});
@@ -95,6 +95,7 @@ int main(int argc, char ** args) {
 		stream << "Fluorite";
 		stream << " FPS:" << std::fixed << std::setprecision(1) << (1.0f/delta) << ";";
 		stream << " lastop:" << std::fixed << std::setprecision(3) << lastop << ";";
+
 
 		auto text = stream.str();
 
