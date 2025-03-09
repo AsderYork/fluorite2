@@ -8,6 +8,23 @@ include(FetchContent)
 MACRO_ENSURE_OUT_OF_SOURCE_BUILD("${CMAKE_PROJECT_NAME} requires an out of source build.")
 
 
+set(BOOST_INCLUDE_LIBRARIES thread filesystem system)
+set(BOOST_ENABLE_CMAKE ON)
+set(FETCHCONTENT_QUIET FALSE)
+
+FetchContent_Declare(
+  Boost
+  GIT_REPOSITORY https://github.com/boostorg/boost.git
+  GIT_TAG boost-1.87.0
+  GIT_SHALLOW TRUE
+  GIT_PROGRESS TRUE
+)
+MESSAGE("STARTING WITH BOOST")
+FetchContent_MakeAvailable(Boost)
+
+
+MESSAGE("STARTING WITH Ogre")
+
 FetchContent_Declare(ogre3d URL https://github.com/OGRECave/ogre/archive/refs/tags/v14.3.1.zip)
 FetchContent_MakeAvailable(ogre3d)
 find_package(SDL2 REQUIRED)
